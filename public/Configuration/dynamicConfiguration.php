@@ -53,7 +53,7 @@ require_once "../../vendor/autoload.php";
 try {
     /**
      * @todo For use with application credentials use:
-     * \PagSeguro\Configuration\Configure::getApplicationCredentials()
+     * new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F')
      *  ->setAuthorizationCode("FD3AF1B214EC40F0B0A6745D041BFDDD")
      */
     $sessionCode = \PagSeguro\Services\Session::create(

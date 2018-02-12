@@ -3,12 +3,13 @@
 require_once "../../../vendor/autoload.php";
 
 \PagSeguro\Library::initialize();
+\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
 
-$code = '0B64FD7B4F9641378E9C9462982A8B95';
+$code = 'C4C8D2C3040C4698A23570002A6F00AB';
 
 try {
     $response = \PagSeguro\Services\Transactions\Search\Code::search(
-        \PagSeguro\Configuration\Configure::getAccountCredentials(),
+        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F'),
         $code
     );
 

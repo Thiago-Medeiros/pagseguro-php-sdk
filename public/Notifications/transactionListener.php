@@ -9,7 +9,7 @@ require_once "../../vendor/autoload.php";
 try {
     if (\PagSeguro\Helpers\Xhr::hasPost()) {
         $response = \PagSeguro\Services\Transactions\Notification::check(
-            \PagSeguro\Configuration\Configure::getAccountCredentials()
+            new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F')
         );
     } else {
         throw new \InvalidArgumentException($_POST);

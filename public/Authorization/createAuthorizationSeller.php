@@ -9,6 +9,7 @@ try {
 }
 \PagSeguro\Library::cmsVersion()->setName("Nome")->setRelease("1.0.0");
 \PagSeguro\Library::moduleVersion()->setName("Nome")->setRelease("1.0.0");
+//\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
 
 $authorization = new \PagSeguro\Domains\Requests\Authorization();
 
@@ -25,15 +26,15 @@ $authorization->addPermission(\PagSeguro\Enum\Authorization\Permissions::DIRECT_
 $person = new \PagSeguro\Domains\Authorization\Seller(
     'John Doe',
     new DateTime('10-10-1990'),
-    new \PagSeguro\Domains\Document('CPF', '00000000000'),
-    new \PagSeguro\Domains\Phone('00', '000000000', \PagSeguro\Enum\Authorization\PhoneEnum::MOBILE),
+    new \PagSeguro\Domains\Document('CPF', NUMEROCPF),
+    new \PagSeguro\Domains\Phone('13', '13141516', \PagSeguro\Enum\Authorization\PhoneEnum::MOBILE),
     new \PagSeguro\Domains\Address('Rua Um',
         '1',
         'Sem complemento',
         'Bairro',
-        '00000000',
+        '14808550',
         'Cidade',
-        'UF',
+        'SP',
         'BRA'));
 
 /**
@@ -41,16 +42,14 @@ $person = new \PagSeguro\Domains\Authorization\Seller(
  *
  * Os tipos de telefone permitidos são HOME, MOBILE e BUSINESS.
  */
-$person->addPhones(new \PagSeguro\Domains\Phone('00', '000000000', \PagSeguro\Enum\Authorization\PhoneEnum::HOME));
-$person->addPhones(new \PagSeguro\Domains\Phone('00', '000000000', \PagSeguro\Enum\Authorization\PhoneEnum::BUSINESS));
 
-$account = new \PagSeguro\Domains\Authorization\Account('john@doe.com', $person);
+$account = new \PagSeguro\Domains\Authorization\Account('john123@doe.com', $person);
 
 $authorization->setAccount($account);
 
 try {
     $response = $authorization->register(
-        \PagSeguro\Configuration\Configure::getApplicationCredentials()
+        new \PagSeguro\Domains\ApplicationCredentials('teste12334', '8AC13EDC85851764442A6FBF0DE7C41B')
     );
     echo "<h2>Criando requisi&ccedil;&atilde;o de authorização</h2>"
         . "<p>URL do pagamento: <strong>$response</strong></p>"

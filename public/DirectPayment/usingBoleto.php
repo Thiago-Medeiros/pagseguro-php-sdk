@@ -5,6 +5,7 @@ require_once "../../vendor/autoload.php";
 \PagSeguro\Library::initialize();
 \PagSeguro\Library::cmsVersion()->setName("Nome")->setRelease("1.0.0");
 \PagSeguro\Library::moduleVersion()->setName("Nome")->setRelease("1.0.0");
+\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
 
 //Instantiate a new Boleto Object
 $boleto = new \PagSeguro\Domains\Requests\DirectPayment\Boleto();
@@ -80,7 +81,7 @@ $boleto->setShipping()->setAddress()->withParameters(
 try {
     //Get the crendentials and register the boleto payment
     $result = $boleto->register(
-        \PagSeguro\Configuration\Configure::getAccountCredentials()
+        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F')
     );
 
     // You can use methods like getCode() to get the transaction code and getPaymentLink() for the Payment's URL.

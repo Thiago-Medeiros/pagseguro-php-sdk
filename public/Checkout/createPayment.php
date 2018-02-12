@@ -5,6 +5,7 @@ require_once "../../vendor/autoload.php";
 \PagSeguro\Library::initialize();
 \PagSeguro\Library::cmsVersion()->setName("Nome")->setRelease("1.0.0");
 \PagSeguro\Library::moduleVersion()->setName("Nome")->setRelease("1.0.0");
+\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
 
 $payment = new \PagSeguro\Domains\Requests\Payment();
 
@@ -108,7 +109,7 @@ try {
 
     /**
      * @todo For checkout with application use:
-     * \PagSeguro\Configuration\Configure::getApplicationCredentials()
+     * new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F')
      *  ->setAuthorizationCode("FD3AF1B214EC40F0B0A6745D041BF50D")
      */
     $result = $payment->register(

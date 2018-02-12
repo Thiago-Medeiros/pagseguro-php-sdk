@@ -7,7 +7,7 @@ require_once "../../vendor/autoload.php";
 /**
  *  Para usa o ambiente de testes (sandbox) descomentar a linha abaixo
  */
-//\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
+\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
 
 /**
  * @param $preApprovalCode
@@ -19,7 +19,7 @@ $queryPreApproval = new \PagSeguro\Domains\Requests\DirectPreApproval\QueryPayme
 
 try {
     $response = $queryPreApproval->register(
-	    new \PagSeguro\Domains\AccountCredentials('email vendedor', 'token vendedor') // credencias do vendedor no pagseguro
+        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F')
     );
 
     echo '<pre>';

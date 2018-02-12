@@ -3,6 +3,7 @@
 require_once "../../../vendor/autoload.php";
 
 \PagSeguro\Library::initialize();
+//\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
 
 $options = [
     'initial_date' => '2015-09-09T00:00',
@@ -15,7 +16,7 @@ $reference = "REF123";
 
 try {
     $response = \PagSeguro\Services\Application\Search\Reference::search(
-        \PagSeguro\Configuration\Configure::getApplicationCredentials(),
+        new \PagSeguro\Domains\ApplicationCredentials('teste12334', '8AC13EDC85851764442A6FBF0DE7C41B'),
         $reference,
         $options
     );

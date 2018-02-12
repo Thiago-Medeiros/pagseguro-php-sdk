@@ -7,16 +7,17 @@ require_once "../../vendor/autoload.php";
 /**
  *  Para usa o ambiente de testes (sandbox) descomentar a linha abaixo
  */
-//\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
+\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
+\PagSeguro\Configuration\Configure::setLog(true, '/var/www/html//log.log');
 
 $editPlan = new \PagSeguro\Domains\Requests\DirectPreApproval\EditPlan();
-$editPlan->setPreApprovalRequestCode('código do plano');
+$editPlan->setPreApprovalRequestCode('452FEB2E80800D62243C3FAA2FCA7A9A');
 $editPlan->setAmountPerPayment('90.00'); //novo valor para cobrança do plano
 $editPlan->setUpdateSubscriptions(false); //indica se a alteração de valor deve afetar as adesões vigentes do plano.
 
 try {
     $response = $editPlan->register(
-        new \PagSeguro\Domains\AccountCredentials('email vendedor', 'token vendedor') // credencias do vendedor no pagseguro
+        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F') // credencias do vendedor no pagseguro
     );
 
     echo '<pre>';

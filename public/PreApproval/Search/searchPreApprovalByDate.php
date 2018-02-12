@@ -3,6 +3,7 @@
 require_once "../../../vendor/autoload.php";
 
 \PagSeguro\Library::initialize();
+\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
 
 $options = [
     'initial_date' => '2016-05-01T14:55',
@@ -13,7 +14,7 @@ $options = [
 
 try {
     $response = \PagSeguro\Services\PreApproval\Search\Date::search(
-        \PagSeguro\Configuration\Configure::getAccountCredentials(),
+        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F'),
         $options
     );
 

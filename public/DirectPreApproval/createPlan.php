@@ -7,7 +7,7 @@ require_once "../../vendor/autoload.php";
 /**
  *  Para usa o ambiente de testes (sandbox) descomentar a linha abaixo
  */
-//\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
+\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
 
 $plan = new \PagSeguro\Domains\Requests\DirectPreApproval\Plan();
 $plan->setRedirectURL('http://meusite.com');
@@ -22,11 +22,11 @@ $plan->setPreApproval()->setFinalDate('2018-09-03');
 $plan->setPreApproval()->setCancelURL("http://meusite.com");
 $plan->setReviewURL('http://meusite.com./review');
 $plan->setMaxUses(100);
-$plan->setReceiver()->withParameters('exemplo@sandbox');
+$plan->setReceiver()->withParameters('thiago.pixelab@gmail.com');
 
 try {
     $response = $plan->register(
-	    new \PagSeguro\Domains\AccountCredentials('email vendedor', 'token vendedor') // credencias do vendedor no pagseguro
+        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F')
     );
 
     echo '<pre>';

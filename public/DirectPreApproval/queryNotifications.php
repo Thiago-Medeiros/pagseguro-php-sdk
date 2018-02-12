@@ -7,7 +7,7 @@ require_once "../../vendor/autoload.php";
 /**
  *  Para usa o ambiente de testes (sandbox) descomentar a linha abaixo
  */
-//\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
+\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
 
 /**
  * QueryNotificationRequest constructor.
@@ -17,11 +17,11 @@ require_once "../../vendor/autoload.php";
  * @param      $interval
  * @param null $notificationCode
  */
-$queryNotification = new \PagSeguro\Domains\Requests\DirectPreApproval\QueryNotification(null, null, 20, 'código da notificação');
+$queryNotification = new \PagSeguro\Domains\Requests\DirectPreApproval\QueryNotification(null, null, 20, 'DC1A336C2727159CC42E2F827B8B3E62');
 
 try {
     $response = $queryNotification->register(
-	    new \PagSeguro\Domains\AccountCredentials('email vendedor', 'token vendedor') // credencias do vendedor no pagseguro
+        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F')
     );
 
     echo '<pre>';
