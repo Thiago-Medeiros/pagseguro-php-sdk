@@ -197,3 +197,4 @@ composer.lock
 ## Lib
 #################
 *.log
+.env
