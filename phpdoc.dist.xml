@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpdoc>
+    <title>PagSeguro PHP SDK</title>
+    <parser>
+        <target>docs</target>
+    </parser>
+    <transformer>
+        <target>docs</target>
+    </transformer>
+    <transformations>
+        <template name="vendor/cvuorinen/phpdoc-markdown-public/data/templates/markdown-public" />
+    </transformations>
+    <files>
+        <directory>source</directory>
+    </files>
+</phpdoc>
