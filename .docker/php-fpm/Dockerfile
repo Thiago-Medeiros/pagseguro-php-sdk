@@ -19,6 +19,10 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" &&
     php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
     php -r "unlink('composer-setup.php');"
 
+RUN pecl install xdebug && \
+        docker-php-ext-enable xdebug
+
+COPY ./xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 ADD ./app.ini /usr/local/etc/php/conf.d
 ADD ./app.pool.conf /usr/local/etc/php-fpm.d/www.conf

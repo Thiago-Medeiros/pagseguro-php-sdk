@@ -22,4 +22,10 @@ services:
       - ./.docker/php-fpm/app.ini:/usr/local/etc/php/conf.d/php.ini
       - ${APPLICATION}:/var/www
     expose:
-     - 9000
+      - 9000
+    environment:
+      - PS_USER_EMAIL=${PS_USER_EMAIL}
+      - PS_USER_TOKEN=${PS_USER_TOKEN}
+      - PS_APPID=${PS_APPID}
+      - PS_APPKEY=${PS_APPKEY}
+      - PS_ENVIRONMENT=${PS_ENVIRONMENT}
