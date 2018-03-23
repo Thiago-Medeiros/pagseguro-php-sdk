@@ -1,20 +1,25 @@
 <?php
 
-require_once "../../../vendor/autoload.php";
+require_once EXAMPLES_PATH . 'bootstrap.php';
 
-\PagSeguro\Library::initialize();
-//\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
-
-$code = 'FD3AF1B214EC40F0B0A6745D041BF50D';
+/**
+ * @var string $code
+ *
+ * Código identificador da notificação. Informa o código da notificação que você quer consultar. O código deve ser
+ * informado no caminho da URL. Você deve usar o código que recebeu pelo parâmetro notificationCode no envio da
+ * notificação.
+ */
+$code = YOUR_TRANSACTION_CODE;
 
 try {
     $response = \PagSeguro\Services\Application\Search\Code::search(
-        new \PagSeguro\Domains\ApplicationCredentials('teste12334', '8AC13EDC85851764442A6FBF0DE7C41B'),
+    /** @var \PagSeguro\Domains\AccountCredentials | \PagSeguro\Domains\ApplicationCredentials $auth */
+        $auth,
         $code
     );
-
-    echo "<pre>";
-    print_r($response);
 } catch (Exception $e) {
-    die($e->getMessage());
+    $response = $e->getMessage();
 }
+
+echo "<pre>";
+print_r($response);
