@@ -1,33 +1,6 @@
 <?php
 
-require_once "../../vendor/autoload.php";
-
-\PagSeguro\Library::initialize();
-\PagSeguro\Library::cmsVersion()->setName("Nome")->setRelease("1.0.0");
-\PagSeguro\Library::moduleVersion()->setName("Nome")->setRelease("1.0.0");
-\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
-
-?>
-<!DOCTYPE html>
-<html>
-    <head>
-        <?php if (\PagSeguro\Configuration\Configure::getEnvironment()->getEnvironment() == "sandbox") : ?>
-            <!--Para integração em ambiente de testes no Sandbox use este link-->
-                <script
-                    type="text/javascript"
-                    src="https://stc.sandbox.pagseguro.uol.com.br/pagseguro/api/v2/checkout/pagseguro.lightbox.js">
-                </script>
-        <?php else : ?>
-        <!--Para integração em ambiente de produção use este link-->
-                <script
-                    type="text/javascript"
-                    src="https://stc.pagseguro.uol.com.br/pagseguro/api/v2/checkout/pagseguro.lightbox.js">
-                </script>
-        <?php endif; ?>
-    </head>
-</html>
-
-<?php
+require '../bootstrap.php';
 
 $payment = new \PagSeguro\Domains\Requests\Payment();
 
@@ -38,71 +11,117 @@ $payment->addItems()->withParameters(
     130.00
 );
 
-$payment->addItems()->withParameters(
-    '0002',
-    'Notebook preto',
-    2,
-    430.00
-);
+$payment->setCurrency('BRL');
 
-$payment->setCurrency("BRL");
-$payment->setReference("LIBPHP000001");
+$payment->setExtraAmount(11.5);
 
-$payment->setRedirectUrl("http://www.lojamodelo.com.br");
+$payment->setReference($reference);
 
-// Set your customer information.
-$payment->setSender()->setName('João Comprador');
-$payment->setSender()->setEmail('email@comprador.com.br');
-$payment->setSender()->setPhone()->withParameters(
-    11,
-    56273440
-);
-$payment->setSender()->setDocument()->withParameters(
-    'CPF',
-    'insira um numero de CPF valido'
-);
+$payment->setRedirectUrl($redirectUrl);
 
-$payment->setShipping()->setAddress()->withParameters(
-    'Av. Brig. Faria Lima',
-    '1384',
-    'Jardim Paulistano',
-    '01452002',
-    'São Paulo',
-    'SP',
-    'BRA',
-    'apto. 114'
-);
+$payment->setNotificationUrl($notificationUrl);
+
+/*
+ * Customer info
+ */
+$payment->setSender()->setName('John Doe');
+$payment->setSender()->setEmail('john@doe.com');
+
+/** @var \PagSeguro\Domains\Phone $phone */
+$payment->setSender()->setPhone()->instance($phone);
+/** @var \PagSeguro\Domains\Document $document */
+$payment->setSender()->setDocument()->instance($document);
+
+/*
+ * Shipping info
+ */
+/** @var \PagSeguro\Domains\Address $address */
+$payment->setShipping()->setAddress()->instance($address);
 $payment->setShipping()->setCost()->withParameters(20.00);
 $payment->setShipping()->setType()->withParameters(\PagSeguro\Enum\Shipping\Type::SEDEX);
 
-//Add metadata items
-$payment->addMetadata()->withParameters('PASSENGER_CPF', 'insira um numero de CPF valido');
-$payment->addMetadata()->withParameters('GAME_NAME', 'DOTA');
-$payment->addMetadata()->withParameters('PASSENGER_PASSPORT', '23456', 1);
-
-//Add items by parameter
+/*
+ * Custom info
+ */
 $payment->addParameter()->withParameters('itemId', '0003')->index(3);
-$payment->addParameter()->withParameters('itemDescription', 'Notebook Rosa')->index(3);
+$payment->addParameter()->withParameters('itemDescription', 'Notebook Amarelo')->index(3);
 $payment->addParameter()->withParameters('itemQuantity', '1')->index(3);
-$payment->addParameter()->withParameters('itemAmount', '201.40')->index(3);
+$payment->addParameter()->withParameters('itemAmount', '200.00')->index(3);
 
-//Add items by parameter using an array
-$payment->addParameter()->withArray(['notificationURL', 'http://www.lojamodelo.com.br/nofitication']);
+/*
+ * Set discount by payment method
+ */
+$payment->addPaymentMethod()->withParameters(
+    PagSeguro\Enum\PaymentMethod\Group::CREDIT_CARD,
+    PagSeguro\Enum\PaymentMethod\Config\Keys::DISCOUNT_PERCENT,
+    10.00
+);
 
+/*
+ * Set max installments without fee
+ */
+$payment->addPaymentMethod()->withParameters(
+    PagSeguro\Enum\PaymentMethod\Group::CREDIT_CARD,
+    PagSeguro\Enum\PaymentMethod\Config\Keys::MAX_INSTALLMENTS_NO_INTEREST,
+    2
+);
 
-$payment->setRedirectUrl("http://www.lojamodelo.com.br");
-$payment->setNotificationUrl("http://www.lojamodelo.com.br/nofitication");
+/*
+ * Set max installments
+ */
+$payment->addPaymentMethod()->withParameters(
+    PagSeguro\Enum\PaymentMethod\Group::CREDIT_CARD,
+    PagSeguro\Enum\PaymentMethod\Config\Keys::MAX_INSTALLMENTS_LIMIT,
+    6
+);
+
+/*
+ * Set accepted payments methods group
+ */
+$payment->acceptPaymentMethod()->groups(
+    \PagSeguro\Enum\PaymentMethod\Group::CREDIT_CARD,
+    \PagSeguro\Enum\PaymentMethod\Group::BALANCE
+);
+
+/*
+ * Set accepted payments methods
+ */
+$payment->acceptPaymentMethod()->name(\PagSeguro\Enum\PaymentMethod\Name::DEBITO_ITAU);
+
+/*
+ * Exclude accepted payments methods group
+ */
+$payment->excludePaymentMethod()->group(\PagSeguro\Enum\PaymentMethod\Group::BOLETO);
 
 try {
-    $onlyCheckoutCode = true;
-    $result = $payment->register(
-        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F'),
-        $onlyCheckoutCode
+    /** @var \PagSeguro\Domains\Requests\Payment $payment */
+    $response = $payment->register(
+        /** @var \PagSeguro\Domains\AccountCredentials | \PagSeguro\Domains\ApplicationCredentials $credential */
+        $credential,
+        true
     );
-
-    echo "<h2>Criando requisi&ccedil;&atilde;o de pagamento. Aguarde...</h2>"
-        . "<p>C&oacute;digo da transa&ccedil;&atilde;o: <strong>" . $result->getCode() . "</strong></p>"
-        . "<script>PagSeguroLightbox('".$result->getCode()."');</script>";
 } catch (Exception $e) {
     die($e->getMessage());
 }
+
+?>
+<!DOCTYPE html>
+<html>
+    <head>
+        <?php if (\PagSeguro\Configuration\Configure::getEnvironment()->getEnvironment() == "sandbox") : ?>
+                <!--Para integração em ambiente de testes no Sandbox use este link-->
+                <script type="text/javascript"
+                    src="https://stc.sandbox.pagseguro.uol.com.br/pagseguro/api/v2/checkout/pagseguro.lightbox.js">
+                </script>
+        <?php else : ?>
+                <!--Para integração em ambiente de produção use este link-->
+                <script type="text/javascript"
+                    src="https://stc.pagseguro.uol.com.br/pagseguro/api/v2/checkout/pagseguro.lightbox.js">
+                </script>
+        <?php endif; ?>
+    </head>
+    <body>
+        <!-- A irá exibir o modal para pagamento -->
+        <script>PagSeguroLightbox(<?= $response->getCode() ?>);</script>
+    </body>
+</html>

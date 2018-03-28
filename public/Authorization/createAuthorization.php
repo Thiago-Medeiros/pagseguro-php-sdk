@@ -1,11 +1,17 @@
 <?php
 
-require_once '../bootstrap.php';
+require '../bootstrap.php';
 
 $authorization = new \PagSeguro\Domains\Requests\Authorization();
 $authorization->setReference($reference);
 $authorization->setRedirectUrl($redirectUrl);
-$authorization->setNotificationUrl($noficationUrl);
+$authorization->setNotificationUrl($notificationUrl);
+
+/*
+ * Aplication permissions
+ *
+ * @link https://devpagseguro.readme.io/docs/modelo-de-aplicacoes-solicitando-autorizacao
+ */
 $authorization->addPermission(\PagSeguro\Enum\Authorization\Permissions::CREATE_CHECKOUTS);
 $authorization->addPermission(\PagSeguro\Enum\Authorization\Permissions::SEARCH_TRANSACTIONS);
 $authorization->addPermission(\PagSeguro\Enum\Authorization\Permissions::RECEIVE_TRANSACTION_NOTIFICATIONS);
@@ -13,11 +19,13 @@ $authorization->addPermission(\PagSeguro\Enum\Authorization\Permissions::MANAGE_
 $authorization->addPermission(\PagSeguro\Enum\Authorization\Permissions::DIRECT_PAYMENT);
 
 try {
-    $response = $authorization->register($appCredential);
-    echo "<h2>Criando requisição de authorização</h2>"
-        . "<p>URL de autorização: <strong>$response</strong></p>"
-        . "<p><a title=\"URL de Autorização\" href=\"$response\" target=\_blank\">"
-        . "Ir para URL de authorização.</a></p>";
+    /** @var \PagSeguro\Domains\Requests\Authorization $authorization */
+    $response = $authorization->register(
+        /** @var \PagSeguro\Domains\ApplicationCredentials $credential */
+        $credential
+    );
 } catch (Exception $e) {
     die($e->getMessage());
 }
+
+print_r($response);

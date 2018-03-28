@@ -1,25 +1,22 @@
 <?php
 
-require_once "../../../vendor/autoload.php";
-
-\PagSeguro\Library::initialize();
-//\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
+require '../../bootstrap.php';
 
 $options = [
-    'initial_date' => '2015-09-09T00:00',
-    'final_date' => '2015-09-12T09:55', //Optional
-    'page' => 1, //Optional
-    'max_per_page' => 20, //Optional
+    'initial_date' => INITIAL_DATE, // Y-m-dTH:i
+    'final_date'   => FINAL_DATE, // Y-m-dTH:i
+    'page'         => PAGE, // integer
+    'max_per_page' => MAX_PER_PAGE, // integer
 ];
 
 try {
     $response = \PagSeguro\Services\Application\Search\Date::search(
-        new \PagSeguro\Domains\ApplicationCredentials('teste12334', '8AC13EDC85851764442A6FBF0DE7C41B'),
+        /** @var \PagSeguro\Domains\ApplicationCredentials $credential */
+        $credential,
         $options
     );
-
-    echo "<pre>";
-    print_r($response);
 } catch (Exception $e) {
     die($e->getMessage());
 }
+
+print_r($response);
