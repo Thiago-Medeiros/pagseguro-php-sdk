@@ -1,24 +1,29 @@
 <?php
 
-require_once "../../vendor/autoload.php";
-
-\PagSeguro\Library::initialize();
-\PagSeguro\Library::cmsVersion()->setName("Nome")->setRelease("1.0.0");
-\PagSeguro\Library::moduleVersion()->setName("Nome")->setRelease("1.0.0");
-\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
+require '../bootstrap.php';
 
 /**
- * @var transaction code
+ * Utilizado quando o processamento do pagamento não foi finalizado e a transação encontra-se com status Aguardando
+ * pagamento ou Em análise.
  */
-$code = "9948DBE4-499B-4A14-BDCF-501C67DEBAA1";
 
 try {
-    $cancel = \PagSeguro\Services\Transactions\Cancel::create(
-        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F'),
-        $code
+    $response = \PagSeguro\Services\Transactions\Cancel::create(
+        /** @var \PagSeguro\Domains\AccountCredentials | \PagSeguro\Domains\ApplicationCredentials $credential */
+        $credential,
+        /**
+         * Código que identifica a transação. Código da transação que será consultada.
+         *
+         * Presença: Obrigatória.
+         * Tipo: Texto.
+         * Formato: Uma sequência de 36 caracteres, com os hífens, ou 32 caracteres, sem os hífens.
+         *
+         * @var string $transactionCode
+         */
+        $transactionCode
     );
-    echo "<pre>";
-    print_r($cancel);
 } catch (Exception $e) {
     die($e->getMessage());
 }
+
+print_r($response);

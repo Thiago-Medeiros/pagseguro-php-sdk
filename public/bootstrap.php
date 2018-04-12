@@ -1,8 +1,6 @@
 <?php
 
-define('EXAMPLES_PATH', __DIR__);
-
-require EXAMPLES_PATH . '/../vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 try {
     \PagSeguro\Library::initialize();
@@ -38,9 +36,9 @@ $appCredential = new \PagSeguro\Domains\ApplicationCredentials($appId, $appKey);
  * Para utilizar o ambiente sandbox use seu vendedor de testes que se encontra em
  * https://sandbox.pagseguro.uol.com.br/vendedor/configuracoes.html
  */
-/** @var string $appId */
+/** @var string |$accountEmail */
 $accountEmail = YourAppID;
-/** @var string $appId */
+/** @var string $accountToken */
 $accountToken = YourAppKey;
 
 $accountCredential = new \PagSeguro\Domains\AccountCredentials($accountEmail, $accountToken);
@@ -55,7 +53,7 @@ $credential = $accountCredential;
  * Descomente as linhas abaixo para habilitar o log
  * é necessário que o "PHP" tenha permissão de escrita nesse arquivo
  */
-$logPath = EXAMPLES_PATH . '/log';
+$logPath = __DIR__ . '/log';
 if (!file_exists($logPath)) {
     try {
         fopen($logPath, 'wb');
@@ -93,7 +91,7 @@ $phone = new \PagSeguro\Domains\Phone(
     NUMBER
 );
 
-/** @var \PagSeguro\Domains\Document $phone */
+/** @var \PagSeguro\Domains\Document $document */
 $document = new \PagSeguro\Domains\Document(
     TYPE,
     IDENTIFIER
@@ -144,7 +142,8 @@ $authorizationCompany = new \PagSeguro\Domains\Authorization\Company(
     new \PagSeguro\Domains\Document('CNPJ', '32137524000115'),
     new \PagSeguro\Domains\Phone('12', '13131313', \PagSeguro\Enum\Authorization\PhoneEnum::BUSINESS),
     new \PagSeguro\Domains\Address($address),
-    $authorizationPartner);
+    $authorizationPartner
+);
 
 $accountCompany = new \PagSeguro\Domains\Authorization\Account('john@doe.com', $authorizationCompany);
 
@@ -153,7 +152,8 @@ $authorizationSeller = new \PagSeguro\Domains\Authorization\Seller(
     new DateTime('10-10-1990'),
     $document,
     new \PagSeguro\Domains\Phone('13', '13141516', \PagSeguro\Enum\Authorization\PhoneEnum::MOBILE),
-    $address);
+    $address
+);
 
 $accountSeller = new \PagSeguro\Domains\Authorization\Account('john123@doe.com', $authorizationSeller);
 

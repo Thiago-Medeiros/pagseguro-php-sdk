@@ -1,32 +1,46 @@
 <?php
-require_once "../../vendor/autoload.php";
 
-\PagSeguro\Library::initialize();
-\PagSeguro\Library::cmsVersion()->setName("Nome")->setRelease("1.0.0");
-\PagSeguro\Library::moduleVersion()->setName("Nome")->setRelease("1.0.0");
-/**
- *  Para usa o ambiente de testes (sandbox) descomentar a linha abaixo
- */
-\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
+require '../bootstrap.php';
 
-/**
- * QueryNotificationRequest constructor.
+/*
+ * A API de Notificações pode lhe enviar mensagens a cada mudança de status ocorrida em alguma recorrência.
  *
- * @param int  $page
- * @param int  $maxPageResults
- * @param      $interval
- * @param null $notificationCode
+ * Para consultar os dados da recorrência em questão, utilize este método
  */
-$queryNotification = new \PagSeguro\Domains\Requests\DirectPreApproval\QueryNotification(null, null, 20, 'DC1A336C2727159CC42E2F827B8B3E62');
+
+/** Página na qual se quer observar os resultados
+ *
+ * @var integer $page
+ */
+$page = PAGE;
+
+/**
+ * Número máximo de registros por página
+ *
+ * @var integer $maxPageResults
+ */
+$maxPageResults = MAX_PAGE_RESULTS;
+
+/**
+ * Quantidade de dias de intervalo Formato: Inteiro até 30
+ *
+ * @var integer $interval
+ */
+$interval = INITIAL_DATE;
+
+$queryNotification = new \PagSeguro\Domains\Requests\DirectPreApproval\QueryNotification(
+    $page,
+    $maxPageResults,
+    $interval
+);
 
 try {
     $response = $queryNotification->register(
-        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F')
+        /** @var \PagSeguro\Domains\AccountCredentials | \PagSeguro\Domains\ApplicationCredentials $credential */
+        $credential
     );
-
-    echo '<pre>';
-    print_r($response);
 } catch (Exception $e) {
     die($e->getMessage());
 }
 
+print_r($response);

@@ -1,22 +1,24 @@
 <?php
 
-require_once "../../vendor/autoload.php";
+require '../bootstrap.php';
 
-\PagSeguro\Library::initialize();
-\PagSeguro\Library::cmsVersion()->setName("Nome")->setRelease("1.0.0");
-\PagSeguro\Library::moduleVersion()->setName("Nome")->setRelease("1.0.0");
-
+/**
+ * Recebendo uma notificação do PagSeguoro
+ * Este script espera um POST com os parâmetros: notificationCode e notificationType=preApproval
+ *
+ * @see https://devpagseguro.readme.io/docs/checkout-web-notificacoes#recebendo-uma-notificacao-de-transacao
+ */
 try {
     if (\PagSeguro\Helpers\Xhr::hasPost()) {
         $response = \PagSeguro\Services\PreApproval\Notification::check(
-            new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F')
+            /** @var \PagSeguro\Domains\AccountCredentials | \PagSeguro\Domains\ApplicationCredentials $credential */
+            $credential
         );
     } else {
         throw new \InvalidArgumentException($_POST);
     }
-
-    echo "<pre>";
-    print_r($response);
 } catch (Exception $e) {
     die($e->getMessage());
 }
+
+print_r($response);

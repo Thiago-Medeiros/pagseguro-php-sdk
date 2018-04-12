@@ -1,32 +1,41 @@
 <?php
 
-require_once "../../vendor/autoload.php";
-
-\PagSeguro\Library::initialize();
-\PagSeguro\Library::cmsVersion()->setName("Nome")->setRelease("1.0.0");
-\PagSeguro\Library::moduleVersion()->setName("Nome")->setRelease("1.0.0");
-\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
+require '../bootstrap.php';
 
 /**
- * @var transaction code
+ * Utilizado quando a transação encontra-se com status Paga, Disponível ou Em disputa e o valor total da transação será
+ * devolvido ao comprador. Lembrando que o limite para estorno de transações é de 90 dias.
+ *
+ * @see https://devpagseguro.readme.io/docs/checkout-web-cancelamento-e-estorno#section-estorno
  */
-$code = "0B64FD7B4F9641378E9C9462982A8B95";
-
-/**
- * @var value to refund
- * @optional true
- */
-$value = null;
 
 try {
-    $refund = \PagSeguro\Services\Transactions\Refund::create(
-        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F'),
-        $code,
+    $response = \PagSeguro\Services\Transactions\Refund::create(
+        /** @var \PagSeguro\Domains\AccountCredentials | \PagSeguro\Domains\ApplicationCredentials $credential */
+        $credential,
+        /**
+         * Código que identifica a transação. Código da transação que será consultada.
+         *
+         * Presença: Obrigatória.
+         * Tipo: Texto.
+         * Formato: Uma sequência de 36 caracteres, com os hífens, ou 32 caracteres, sem os hífens.
+         *
+         * @var string $transactionCode
+         */
+        $transactionCode,
+        /**
+         * Se declarado e o valor for inferior ao da transação original será criado um estorno parcial
+         *
+         * @see https://devpagseguro.readme.io/docs/checkout-web-cancelamento-e-estorno#section-estorno-parcial
+         *
+         * Presença: Opcional
+         *
+         * @var float $value
+         */
         $value
     );
-
-    echo "<pre>";
-    print_r($refund);
 } catch (Exception $e) {
     die($e->getMessage());
 }
+
+print_r($response);

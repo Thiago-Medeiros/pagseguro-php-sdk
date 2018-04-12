@@ -1,26 +1,35 @@
 <?php
-require_once "../../vendor/autoload.php";
 
-\PagSeguro\Library::initialize();
-\PagSeguro\Library::cmsVersion()->setName("Nome")->setRelease("1.0.0");
-\PagSeguro\Library::moduleVersion()->setName("Nome")->setRelease("1.0.0");
-/**
- *  Para usa o ambiente de testes (sandbox) descomentar a linha abaixo
+require '../bootstrap.php';
+
+/*
+ * Com este método é possível alterar o status de uma adesão, movendo-a de ativa (Status A) para suspensa (Status H)
+ * e vice-versa. Uma adesão não terá cobranças durante período em que estiver suspensa.
+ *
+ * Se durante este tempo o plano expirar, ou o prazo da adesão encerrar, a adesão não poderá mais ser retornada para
+ * Ativa.
  */
-\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
 
 $status = new \PagSeguro\Domains\Requests\DirectPreApproval\Status();
-$status->setPreApprovalCode('CA2A46');
-$status->setStatus('SUPENDED');
+
+/** @var string $preApprovalCode */
+$status->setPreApprovalCode($preApprovalCode);
+
+/**
+ * Novo status da assinatura.
+ *
+ * @var string $preApprovalStatus
+ * @options=['ACTIVE', 'SUSPENDED']
+ */
+$status->setStatus($preApprovalStatus);
 
 try {
     $response = $status->register(
-        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F')
+        /** @var \PagSeguro\Domains\AccountCredentials | \PagSeguro\Domains\ApplicationCredentials $credential */
+        $credential
     );
-
-    echo '<pre>';
-    print_r($response);
 } catch (Exception $e) {
     die($e->getMessage());
 }
 
+print_r($response);

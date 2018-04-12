@@ -1,84 +1,223 @@
 <?php
 
-require_once "../../vendor/autoload.php";
-
-\PagSeguro\Library::initialize();
-\PagSeguro\Library::cmsVersion()->setName("Nome")->setRelease("1.0.0");
-\PagSeguro\Library::moduleVersion()->setName("Nome")->setRelease("1.0.0");
-\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
+require '../bootstrap.php';
 
 $preApproval = new \PagSeguro\Domains\Requests\PreApproval();
 
-// Set the currency
-$preApproval->setCurrency("BRL");
-
-// Set a reference code for this payment request. It is useful to identify this payment
-// in future notifications.
-$preApproval->setReference("REF123");
-
-// Set shipping information for this payment request
-$preApproval->setShipping()->setType(\PagSeguro\Enum\Shipping\Type::SEDEX);
-$preApproval->setShipping()->setAddress()->withParameters(
-    '01452002',
-    'Av. Brig. Faria Lima',
-    '1384',
-    'apto. 114',
-    'Jardim Paulistano',
-    'São Paulo',
-    'SP',
-    'BRA'
-);
-
-// Set your customer information.
-$preApproval->setSender()->setName('João Comprador');
-$preApproval->setSender()->setEmail('email@comprador.com.br');
-$preApproval->setSender()->setPhone()->withParameters(
-    11,
-    56273440
-);
-
-$preApproval->setSender()->setAddress()->withParameters(
-    '01452002',
-    'Av. Brig. Faria Lima',
-    '1384',
-    'apto. 114',
-    'Jardim Paulistano',
-    'São Paulo',
-    'SP',
-    'BRA'
-);
-
-/***
- * Pre Approval information
+/**
+ * Moeda utilizada. Indica a moeda na qual o pagamento será feito. No momento, a única opção disponível é BRL (Real).
+ *
+ * Presença: Obrigatória.
+ * Tipo: Texto.
+ * Formato: Somente o valor BRL é aceito.
+ *
+ * @var string $currency
+ * @options=['BRL']
  */
-$preApproval->setPreApproval()->setCharge('manual');
-$preApproval->setPreApproval()->setName("Seguro contra roubo do Notebook Prata");
-$preApproval->setPreApproval()->setDetails("Todo dia 30 será cobrado o valor de R100,00 referente ao seguro contra
-            roubo do Notebook Prata.");
-$preApproval->setPreApproval()->setAmountPerPayment('100.00');
-$preApproval->setPreApproval()->setMaxAmountPerPeriod('200.00');
-$preApproval->setPreApproval()->setPeriod('Monthly');
-$preApproval->setPreApproval()->setMaxTotalAmount('2400.00');
-$preApproval->setPreApproval()->setInitialDate('2018-03-30T00:00:00');
-$preApproval->setPreApproval()->setFinalDate('2018-05-07T00:00:00');
+$preApproval->setCurrency($currency);
 
-$preApproval->setRedirectUrl("http://www.lojateste.com.br/redirect");
-$preApproval->setReviewUrl("http://www.lojateste.com.br/review");
+/**
+ * Código de referência da transação. Informa o código que foi usado para fazer referência ao pagamento. Este código
+ * foi fornecido no momento do pagamento e é útil para vincular as transações do PagSeguro às vendas registradas no seu
+ * sistema.
+ *
+ * Presença: Opcional.
+ * Formato: Livre, com o limite de 200 caracteres.
+ * Tipo: Texto.
+ *
+ * @var string $reference
+ */
+$preApproval->setReference($reference);
+
+/** @var \PagSeguro\Domains\ShippingType $shippingType */
+$preApproval->setShipping()->setType()->instance($shippingType);
+
+/** @var \PagSeguro\Domains\Address $address */
+$preApproval->setShipping()->setAddress()->instance($address);
+
+/**
+ * Nome completo do comprador. Especifica o nome completo do comprador que está realizando o pagamento. Este campo é
+ * opcional e você pode enviá-lo caso já tenha capturado os dados do comprador em seu sistema e queira evitar que ele
+ * preencha esses dados novamente no PagSeguro.
+ *
+ * Presença: Opcional.
+ * Tipo: Texto.
+ * Formato: No mínimo duas sequências de caracteres, com o limite total de 50 caracteres.
+ *
+ * @var string $senderName
+ */
+$payment->setSender()->setName($senderName);
+
+/**
+ * E-mail do comprador. Especifica o e-mail do comprador que está realizando o pagamento. Este campo é opcional e você
+ * pode enviá-lo caso já tenha capturado os dados do comprador em seu sistema e queira evitar que ele preencha esses
+ * dados novamente no PagSeguro.
+ *
+ * Presença: Opcional.
+ * Tipo: Texto.
+ * Formato: um e-mail válido (p.e., usuario@site.com.br), com no máximo 60 caracteres.
+ *
+ * @var string $senderEmail
+ */
+$payment->setSender()->setEmail($senderEmail);
+
+/** @var \PagSeguro\Domains\Phone $phone */
+$preApproval->setSender()->setPhone()->instance($phone);
+
+/** @var \PagSeguro\Domains\Address $address */
+$preApproval->setShipping()->setAddress()->instance($address);
+
+/**
+ * Indica se a assinatura será gerenciada pelo PagSeguro (auto) ou pelo Vendedor (manual). Neste caso usaremos o valor
+ * "auto".
+ *
+ * Presença: Opcional. Se não for informado assume-se que seu valor é
+ * manual (gerenciado pelo vendedor)
+ * Tipo: Texto.
+ * Formato: Aceita os valores "auto" ou "manual".
+ *
+ * @var string $preApprovalCharge
+ */
+$preApproval->setPreApproval()->setCharge($preApprovalCharge);
+
+/**
+ * Nome/Identificador da assinatura.
+ *
+ * Presença: Obrigatória.
+ * Tipo: Texto.
+ * Formato: Livre, com limite de 100 caracteres.
+ *
+ * @var string $preApprovalName
+ */
+$preApproval->setPreApproval()->setName($preApprovalName);
+
+/**
+ * Detalhes/Descrição da assinatura.
+ *
+ * Presença: Opcional.
+ * Tipo: Texto.
+ * Formato: Livre, com limite de 255 caracteres.
+ *
+ * @var string $preApprovalDetails
+ */
+$preApproval->setPreApproval()->setDetails($preApprovalDetails);
+
+/**
+ * Valor exato de cada cobrança.
+ *
+ * Presença: Obrigatório para o modelo automático.
+ * Tipo: Número.
+ * Formato: Decimal, com duas casas decimais separadas por ponto
+ * (p.e, 1234.56). Deve ser um valor maior ou igual a 1.00 e menor ou
+ * igual a 2000.00
+ * Obs.: Não pode ser utilizado em conjunto com
+ * preApprovalMaxAmountPerPayment
+ *
+ * @var float $preApprovalAmountPerPayment
+ */
+$preApproval->setPreApproval()->setAmountPerPayment($preApprovalAmountPerPayment);
+
+/**
+ * Valor máximo que pode ser cobrado por mês de vigência da
+ * assinatura, independente de sua periodicidade.
+ *
+ * Presença: Obrigatória quando a assinatura é gerenciada pelo
+ * vendedor (charge = manual). Não é utilizada quando a assinatura é
+ * gerenciada pelo PagSeguro (charge = auto).
+ * Tipo: Número.
+ * Formato: Decimal, com duas casas decimais separadas por ponto
+ * (p.e, 1234.56). Deve ser um valor maior ou igual a 1.00 e menor ou
+ * igual a 2000.00
+ *
+ * @var float $preApprovalAmountPerPeriod
+ */
+$preApproval->setPreApproval()->setMaxAmountPerPeriod($preApprovalAmountPerPeriod);
+
+/**
+ * Periodicidade da cobrança.
+ *
+ * Presença: Obrigatória.
+ * Tipo: Texto.
+ * Formato: Case insensitive. Reconhece os valores WEEKLY,
+ * MONTHLY, BIMONTHLY, TRIMONTHLY, SEMIANNUALLY, YEARLY.
+ *
+ * @var string $preApprovalPeriod
+ */
+$preApproval->setPreApproval()->setPeriod($preApprovalPeriod);
+
+/**
+ * Valor máximo que pode ser cobrado durante a vigência da
+ * assinatura.
+ *
+ * Presença: Obrigatória.
+ * Tipo: Número.
+ * Formato: Decimal, com duas casas decimais separadas por ponto
+ * (p.e, 1234.56). Deve ser um valor maior ou igual a 1.00 e menor ou
+ * igual a 35000.00
+ *
+ * @var float $preApprovalMaxTotalAmount
+ */
+$preApproval->setPreApproval()->setMaxTotalAmount($preApprovalMaxTotalAmount);
+
+/**
+ * Início da vigência da assinatura.
+ *
+ * Presença: Opcional, podendo ser utilizado apenas quando a
+ * assinatura é gerenciada pelo vendedor (charge = manual).
+ * Tipo: Data/Hora.
+ * Formato: YYYY-MM-DDThh:mm:ss.sTZD. Assume valores maiores
+ * que a data atual e menores ou iguais a data atual + 2 anos.
+ *
+ * @var string $preApprovalInitialDate
+ */
+$preApproval->setPreApproval()->setInitialDate($preApprovalInitialDate);
+
+/**
+ * Fim da vigência da assinatura.
+ *
+ * Presença: Obrigatória.
+ * Tipo: Data/Hora.
+ * Formato: YYYY-MM-DDThh:mm:ss.sTZD. Assume valores maiores
+ * que a data atual ou maiores que o valor definido em
+ * preApprovalInitialDate, não podendo ter uma diferença superior a 2
+ * anos da data de início.
+ *
+ * @var string $preApprovalFinalDate
+ */
+$preApproval->setPreApproval()->setFinalDate($preApprovalFinalDate);
+
+/**
+ * URL de redirecionamento após o pagamento. Determina a URL para a qual o comprador será redirecionado após o final do
+ * fluxo de pagamento. Este parâmetro permite que seja informado um endereço de específico para cada pagamento
+ * realizado.
+ *
+ * Presença: Opcional.
+ * Tipo: Texto.
+ * Formato: Uma URL válida, com limite de 255 caracteres.
+ *
+ * @var string $preApprovalRedirectUrl
+ */
+$preApproval->setRedirectUrl($preApprovalRedirectUrl);
+
+/**
+ * URL para onde o comprador será redirecionado, durante o fluxo de
+ * aprovação, caso deseje alterar/revisar as regras da assinatura.
+ *
+ * Presença: Opcional.
+ * Tipo: Texto.
+ * Formato: Uma URL válida, com limite de 255 caracteres.
+ *
+ * @var string $preApprovalReviewUrl
+ */
+$preApproval->setReviewUrl($preApprovalReviewUrl);
 
 try {
-
-    /**
-     * @todo For checkout with application use:
-     * new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F')
-     *  ->setAuthorizationCode("FD3AF1B214EC40F0B0A6745D041BF50D")
-     */
     $response = $preApproval->register(
-        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F')
+        /** @var \PagSeguro\Domains\AccountCredentials | \PagSeguro\Domains\ApplicationCredentials $credential */
+        $credential
     );
-
-    echo "<h2>Criando requisi&ccedil;&atilde;o de assinatura</h2>"
-        . "<p>URL da assinatura: <strong>$response</strong></p>"
-        . "<p><a title=\"URL da assinatura\" href=\"$response\" target=\_blank\">Ir para URL da assinatura.</a></p>";
 } catch (Exception $e) {
     die($e->getMessage());
 }
+
+print_r($response);

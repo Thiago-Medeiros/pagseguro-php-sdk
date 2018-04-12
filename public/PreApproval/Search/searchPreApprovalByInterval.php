@@ -1,20 +1,20 @@
 <?php
 
-require_once "../../../vendor/autoload.php";
+require '../../bootstrap.php';
 
-\PagSeguro\Library::initialize();
-\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
-
-$days = 20;
-
+/*
+ * Permite o acesso aos dados de todas as assinaturas que tiveram algum tipo de notificação dentro de um intervalo de
+ * tempo (em dias) definido.
+ */
 try {
     $response = \PagSeguro\Services\PreApproval\Search\Interval::search(
-        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F'),
+        /** @var \PagSeguro\Domains\AccountCredentials | \PagSeguro\Domains\ApplicationCredentials $credential */
+        $credential,
+        /** @var integer $days */
         $days
     );
-
-    echo "<pre>";
-    print_r($response);
 } catch (Exception $e) {
     die($e->getMessage());
 }
+
+print_r($response);

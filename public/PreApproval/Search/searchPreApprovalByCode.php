@@ -1,20 +1,26 @@
 <?php
 
-require_once "../../../vendor/autoload.php";
+require '../../bootstrap.php';
 
-\PagSeguro\Library::initialize();
-\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
-
-$code = 'DF7EB0AC9999333CC4379F82114239AB';
+/*
+ * Esta consulta possibilita o acesso a todos os dados de uma assinatura a partir de seu código identificador.
+ */
 
 try {
     $response = \PagSeguro\Services\PreApproval\Search\Code::search(
-        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F'),
+        /** @var \PagSeguro\Domains\AccountCredentials | \PagSeguro\Domains\ApplicationCredentials $credential */
+        $credential,
+        /**
+         * Código identificador da assinatura.
+         *
+         * Tipo: Texto.
+         *
+         * @var string $code
+         */
         $code
     );
-
-    echo "<pre>";
-    print_r($response);
 } catch (Exception $e) {
     die($e->getMessage());
 }
+
+print_r($response);

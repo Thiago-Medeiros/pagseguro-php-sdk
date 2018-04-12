@@ -1,45 +1,141 @@
 <?php
-require_once "../../vendor/autoload.php";
 
-\PagSeguro\Library::initialize();
-\PagSeguro\Library::cmsVersion()->setName("Nome")->setRelease("1.0.0");
-\PagSeguro\Library::moduleVersion()->setName("Nome")->setRelease("1.0.0");
-/**
- *  Para usa o ambiente de testes (sandbox) descomentar a linha abaixo
+require '../bootstrap.php';
+
+/*
+ * A adesão é o mecanismo que une o consumidor ao plano, possibilitando que ele faça os pagamentos de forma recorrente,
+ * de acordo com o que foi estipulado no plano ao qual ele está aderindo.
  */
-\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
-\PagSeguro\Configuration\Configure::setLog(true, '/var/www/git/pagseguro/pagseguro-php-sdk/Log.log');
 
 $preApproval = new \PagSeguro\Domains\Requests\DirectPreApproval\Accession();
-$preApproval->setPlan('código do plano');
-$preApproval->setReference('referência da assinatura');
-$preApproval->setSender()->setName('nome');//assinante
-$preApproval->setSender()->setEmail('email');//assinante
-$preApproval->setSender()->setIp('ip');//assinante
-$preApproval->setSender()->setAddress()->withParameters('logradouro', 'numero', 'bairro', 'cep', 'cidade', 'UF',
-    'BRA');//assinante
-$document = new \PagSeguro\Domains\DirectPreApproval\Document();
-$document->withParameters('CPF', 'cpf'); //assinante
+
+/**
+ * Código do plano ao qual a assinatura será vinculada. Formato: Obtido no método /pre-approvals/request.
+ *
+ * @var string $preApprovalPlan
+ */
+$preApproval->setPlan($preApprovalPlan);
+
+/**
+ * Código de referência da assinatura no seu sistema. Formato: Livre, com no mínimo 1 e no máximo 200 caracteres.
+ *
+ * @var string $preApprovalReference
+ */
+$preApproval->setReference($preApprovalReference);
+
+/**
+ * Nome completo do consumidor. Formato: Livre, com no mínimo duas sequências de strings e limite total de 50
+ * caracteres.
+ *
+ * @var string $senderName
+ */
+$preApproval->setSender()->setName($senderName);
+
+/**
+ * E-mail do consumidor. Formato: Um e-mail válido, com limite de 60 caracteres.
+ *
+ * @var string $senderEmail
+ */
+$preApproval->setSender()->setEmail($senderEmail);
+
+/**
+ * Endereço de IP de origem do consumidor. Obrigatório se hash for nulo. Formato: 4 números, de 0 a 255, separados por
+ * ponto.
+ *
+ * @var string $senderIp
+ */
+$preApproval->setSender()->setIp($senderIp);
+
+/*
+ * Endereço do consumidor.
+ */
+$preApproval->setSender()->setAddress()->withParameters(
+    $street,
+    $number,
+    $district,
+    $postalCode,
+    $city,
+    $state,
+    $country
+);
+
+/** @var \PagSeguro\Domains\DirectPreApproval\Document $document Documentos do consumidor */
 $preApproval->setSender()->setDocuments($document);
-$preApproval->setSender()->setPhone()->withParameters('ddd', 'telefone'); //assinante
-$preApproval->setPaymentMethod()->setCreditCard()->setToken('token'); //token do cartão de crédito gerado via javascript
-$preApproval->setPaymentMethod()->setCreditCard()->setHolder()->setName('Nome Teste'); //nome do titular do cartão de crédito
-$preApproval->setPaymentMethod()->setCreditCard()->setHolder()->setBirthDate('10/10/1990'); //data de nascimento do titular do cartão de crédito
-$document = new \PagSeguro\Domains\DirectPreApproval\Document();
-$document->withParameters('CPF', 'cpf'); //cpf do titular do cartão de crédito
+
+$preApproval->setSender()->setPhone()->withParameters(
+    /**
+     * DDD do comprador. Formato: Um número de 2 dígitos correspondente a um DDD válido.
+     *
+     * @var string $areaCode
+     */
+    $areaCode,
+    /**
+     * Número do telefone do comprador. Formato: Um número entre 7 e 9 dígitos.
+     *
+     * @var string $number
+     */
+    $number
+);
+
+/**
+ * Token retornado no método Javascript PagSeguroDirectPayment.createCardToken().
+ *
+ * @var string $creditCardtoken
+ */
+$preApproval->setPaymentMethod()->setCreditCard()->setToken($creditCardtoken);
+
+/**
+ * Nome conforme impresso no cartão de crédito. Formato: No mínimo 1 e no máximo 50 caracteres.
+ *
+ * @var string $creditCardholderName
+ */
+$preApproval->setPaymentMethod()->setCreditCard()->setHolder()->setName($creditCardholderName);
+
+/**
+ * Data de nascimento do dono do cartão de crédito. Formato: dd/MM/yyyy.
+ *
+ * @var string $creditCardholderBirthdate
+ */
+$preApproval->setPaymentMethod()->setCreditCard()->setHolder()->setBirthDate($creditCardholderBirthdate);
+
+/** @var \PagSeguro\Domains\DirectPreApproval\Document $document Documentos do consumidor */
 $preApproval->setPaymentMethod()->setCreditCard()->setHolder()->setDocuments($document);
-$preApproval->setPaymentMethod()->setCreditCard()->setHolder()->setPhone()->withParameters('ddd', 'telefone'); //telefone do titular do cartão de crédito
-$preApproval->setPaymentMethod()->setCreditCard()->setHolder()->setBillingAddress()->withParameters('logradouro', 'numero',
-    'bairro', 'cep', 'cidade', 'UF', 'BRA'); //endereço do titular do cartão de crédito
+
+$preApproval->setPaymentMethod()->setCreditCard()->setHolder()->setPhone()->withParameters(
+    /**
+     * DDD do comprador. Formato: Um número de 2 dígitos correspondente a um DDD válido.
+     *
+     * @var string $areaCode
+     */
+    $areaCode,
+    /**
+     * Número do telefone do comprador. Formato: Um número entre 7 e 9 dígitos.
+     *
+     * @var string $number
+     */
+    $number
+);
+
+/*
+ * Endereço de Cobrança.
+ */
+$preApproval->setPaymentMethod()->setCreditCard()->setHolder()->setBillingAddress()->withParameters(
+    $street,
+    $number,
+    $district,
+    $postalCode,
+    $city,
+    $state,
+    $country
+);
 
 try {
     $response = $preApproval->register(
-        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F')
+        /** @var \PagSeguro\Domains\AccountCredentials | \PagSeguro\Domains\ApplicationCredentials $credential */
+        $credential
     );
-
-    echo '<pre>';
-    print_r($response);
 } catch (Exception $e) {
     die($e->getMessage());
 }
 
+print_r($response);

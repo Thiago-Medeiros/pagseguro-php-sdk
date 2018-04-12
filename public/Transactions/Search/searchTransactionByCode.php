@@ -1,20 +1,31 @@
 <?php
 
-require_once "../../../vendor/autoload.php";
+require '../../bootstrap.php';
 
-\PagSeguro\Library::initialize();
-\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
-
-$code = 'C4C8D2C3040C4698A23570002A6F00AB';
+/*
+ * Esta consulta possibilita o acesso a todos os dados de uma transação a partir do código identificador. Ela é
+ * bastante útil quando você habilita o recebimento do código da transação no redirecionamento. Você também pode usá-la
+ * para consultar mais detalhes de transações obtidas com a consulta de transações por código de referência ou
+ * intervalo de datas.
+ */
 
 try {
     $response = \PagSeguro\Services\Transactions\Search\Code::search(
-        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F'),
-        $code
+        /** @var \PagSeguro\Domains\AccountCredentials | \PagSeguro\Domains\ApplicationCredentials $credential */
+        $credential,
+        /**
+         * Código que identifica a transação. Código da transação que será consultada.
+         *
+         * Presença: Obrigatória.
+         * Tipo: Texto.
+         * Formato: Uma sequência de 36 caracteres, com os hífens, ou 32 caracteres, sem os hífens.
+         *
+         * @var string $transactionCode
+         */
+        $transactionCode
     );
-
-    echo "<pre>";
-    print_r($response);
 } catch (Exception $e) {
     die($e->getMessage());
 }
+
+print_r($response);

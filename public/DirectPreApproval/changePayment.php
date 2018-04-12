@@ -1,39 +1,98 @@
 <?php
-require_once "../../vendor/autoload.php";
 
-\PagSeguro\Library::initialize();
-\PagSeguro\Library::cmsVersion()->setName("Nome")->setRelease("1.0.0");
-\PagSeguro\Library::moduleVersion()->setName("Nome")->setRelease("1.0.0");
-/**
- *  Para usa o ambiente de testes (sandbox) descomentar a linha abaixo
+require '../bootstrap.php';
+
+/*
+ * Durante a vigência de uma adesão ativa é possível atualizar os dados de pagamento da adesão.
  */
-\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
 
 $changePayment = new \PagSeguro\Domains\Requests\DirectPreApproval\ChangePayment();
-$changePayment->setPreApprovalCode('q213213123');
-/*
- * usar setHash ou setIp
- */
-//$changePayment->setSender()->setHash('asdasd');
-$changePayment->setSender()->setIp('ip');
-$changePayment->setCreditCard()->setToken('token'); //token do cartão de crédito gerado via javascript
-$changePayment->setCreditCard()->setHolder()->setName('Nome Teste'); //nome do titular do cartão de crédito
-$changePayment->setCreditCard()->setHolder()->setBirthDate('10/10/1990'); //data de nascimento do titular do cartão de crédito
-$document = new \PagSeguro\Domains\DirectPreApproval\Document();
-$document->withParameters('CPF', 'cpf');  //cpf do titular do cartão de crédito
-$changePayment->setCreditCard()->setHolder()->setDocuments($document);
-$changePayment->setCreditCard()->setHolder()->setPhone()->withParameters('ddd', 'telefone'); //telefone do titular do cartão de crédito
-$changePayment->setCreditCard()->setHolder()->setBillingAddress()->withParameters('logradouro', 'numero',
-	'bairro', 'cep', 'cidade', 'UF', 'BRA'); //endereço do titular do cartão de crédito
 
+/**
+ * Código da recorrência
+ *
+ * @var string $preApprovalCode
+ */
+$changePayment->setPreApprovalCode($preApprovalCode);
+
+/**
+ * Identificador (fingerprint) gerado pelo vendedor por meio do JavaScript do PagSeguro. Obrigatório se ip for nulo.
+ * Formato: Obtido a partir do método Javascript PagseguroDirectPayment.getSenderHash()
+ *
+ * @var string $senderHash
+ */
+$changePayment->setSender()->setHash($senderHash);
+
+/**
+ * Endereço de IP de origem da assinatura, relacionado ao assinante. Obrigatório se hash for nulo. Formato: 4 números,
+ * de 0 a 255, separados por ponto
+ *
+ * Opcional
+ *
+ * @var string $senderIp
+ */
+$changePayment->setSender()->setIp($senderIp);
+
+
+/**
+ * Token retornado no método Javascript PagSeguroDirectPayment.createCardToken().
+ *
+ * @var string $creditCardtoken
+ */
+$changePayment->setCreditCard()->setToken($creditCardtoken);
+
+
+/**
+ * Nome conforme impresso no cartão de crédito. Formato: No mínimo 1 e no máximo 50 caracteres.
+ *
+ * @var string $creditCardholderName
+ */
+$changePayment->setCreditCard()->setHolder()->setName($creditCardholderName);
+
+/**
+ * Data de nascimento do dono do cartão de crédito. Formato: dd/MM/yyyy.
+ *
+ * @var string $creditCardholderBirthdate
+ */
+$changePayment->setCreditCard()->setHolder()->setBirthDate($creditCardholderBirthdate);
+
+/** @var \PagSeguro\Domains\DirectPreApproval\Document $document Documentos do consumidor */
+$changePayment->setCreditCard()->setHolder()->setDocuments($document);
+
+$changePayment->setCreditCard()->setHolder()->setPhone()->withParameters(
+    /**
+     * DDD do comprador. Formato: Um número de 2 dígitos correspondente a um DDD válido.
+     *
+     * @var string $areaCode
+     */
+    $areaCode,
+    /**
+     * Número do telefone do comprador. Formato: Um número entre 7 e 9 dígitos.
+     *
+     * @var string $number
+     */
+    $number
+);
+
+/*
+ * Endereço de Cobrança.
+ */
+$changePayment->setCreditCard()->setHolder()->setBillingAddress()->withParameters(
+    $street,
+    $number,
+    $district,
+    $postalCode,
+    $city,
+    $state,
+    $country
+);
 try {
     $response = $changePayment->register(
-        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F')
+        /** @var \PagSeguro\Domains\AccountCredentials | \PagSeguro\Domains\ApplicationCredentials $credential */
+        $credential
     );
-
-    echo '<pre>';
-    print_r($response);
 } catch (Exception $e) {
     die($e->getMessage());
 }
 
+print_r($response);

@@ -1,27 +1,38 @@
 <?php
-require_once "../../vendor/autoload.php";
 
-\PagSeguro\Library::initialize();
-\PagSeguro\Library::cmsVersion()->setName("Nome")->setRelease("1.0.0");
-\PagSeguro\Library::moduleVersion()->setName("Nome")->setRelease("1.0.0");
-/**
- *  Para usa o ambiente de testes (sandbox) descomentar a linha abaixo
+require '../bootstrap.php';
+
+/*
+ * É possível conceder desconto para a próxima parcela da adesão. O desconto se aplica somente à cobrança subsequente,
+ * não se aplicando às demais cobranças futuras.
  */
-\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
-
 $status = new \PagSeguro\Domains\Requests\DirectPreApproval\Discount();
 $status->setPreApprovalCode('código da assinatura');
-$status->setType('DISCOUNT_PERCENT'); //tipo de desconto
-$status->setValue('10.00'); //valor do desconto
+
+/**
+ * Tipo do desconto a ser aplicado
+ *
+ * @var string $type
+ * @options=['DISCOUNT_PERCENT', 'DISCOUNT_AMOUNT']
+ */
+$status->setType($type);
+
+/**
+ * Valor do desconto a ser aplicado, de acordo com o tipo. Formato: Decimal, com duas casas decimais separadas por
+ * ponto, maior que 0.00 e deve ser compatível com o valor a ser descontado. Por exemplo: não é possível aplicar um
+ * desconto fixo de 11.00 para uma cobrança de 10.00, tal como não é possível informar uma porcentagem acima de 100.00.
+ *
+ * @var string $value
+ */
+$status->setValue($value);
 
 try {
-    $response = $status->register(
-        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F')
+    $response = $plan->register(
+        /** @var \PagSeguro\Domains\AccountCredentials | \PagSeguro\Domains\ApplicationCredentials $credential */
+        $credential
     );
-
-    echo '<pre>';
-    print_r($response);
 } catch (Exception $e) {
     die($e->getMessage());
 }
 
+print_r($response);

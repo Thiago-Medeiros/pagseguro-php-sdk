@@ -24,43 +24,65 @@
 
 require_once "../../vendor/autoload.php";
 
-\PagSeguro\Library::initialize();
-\PagSeguro\Library::cmsVersion()->setName("Nome")->setRelease("1.0.0");
-\PagSeguro\Library::moduleVersion()->setName("Nome")->setRelease("1.0.0");
+try {
+    \PagSeguro\Library::initialize();
+} catch (Exception $e) {
+    die($e);
+}
+\PagSeguro\Library::cmsVersion()->setName($cmsVersion)->setRelease($cmsRelease);
+\PagSeguro\Library::moduleVersion()->setName($moduleVersion)->setRelease($moduleRelease);
 
 /*
  * To do a dynamic configuration of the library credentials you have to use the set methods
  * from the static class \PagSeguro\Configuration\Configure. 
  */
 
-//For example, to configure the library dynamically:
-\PagSeguro\Configuration\Configure::setEnvironment('production');//production or sandbox
+/**
+ *
+ * @see https://sandbox.pagseguro.uol.com.br/#rmcl
+ *
+ * @var string $environment
+ * @options=['production', 'sandbox']
+ */
+\PagSeguro\Configuration\Configure::setEnvironment($environment);//production or sandbox
+
 \PagSeguro\Configuration\Configure::setAccountCredentials(
-    'your_pagseguro_email',
-    'your_pagseguro_token'
+    /**
+     * @see https://devpagseguro.readme.io/v1/docs/autenticacao#section-obtendo-suas-credenciais-de-conta
+     *
+     * @var string $accountEmail
+     */
+    $accountEmail,
+    /**
+     * @see https://devpagseguro.readme.io/v1/docs/autenticacao#section-obtendo-suas-credenciais-de-conta
+     *
+     * @var string $accountToken
+     */
+    $accountToken
 );
-\PagSeguro\Configuration\Configure::setCharset('UTF-8');// UTF-8 or ISO-8859-1
-\PagSeguro\Configuration\Configure::setLog(true, '/logpath/logFilename.log');
 
 /**
- * @todo To set the application credentials instead of the account credentials use:
- * \PagSeguro\Configuration\Configure::setApplicationCredentials(
- *  'appId',
- *  'appKey'
- * );
+ *
+ * @see https://devpagseguro.readme.io/docs/endpoints-da-api#section-formato-de-dados-para-envio-e-resposta
+ *
+ * @var string $charset
+ * @options=['UTF-8', 'ISO-8859-1']
  */
+\PagSeguro\Configuration\Configure::setCharset($charset);
+
+/**
+ * Path do arquivo de log, tenha certeza de que o php terá permissão para escrever no arquivo
+ *
+ * @var string $logPath
+ */
+\PagSeguro\Configuration\Configure::setLog(true, $logPath);
 
 try {
-    /**
-     * @todo For use with application credentials use:
-     * new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F')
-     *  ->setAuthorizationCode("FD3AF1B214EC40F0B0A6745D041BFDDD")
-     */
-    $sessionCode = \PagSeguro\Services\Session::create(
+    $response = \PagSeguro\Services\Session::create(
         \PagSeguro\Configuration\Configure::getAccountCredentials()
     );
-
-    echo "<strong>ID de sess&atilde;o criado: </strong>{$sessionCode->getResult()}";
 } catch (Exception $e) {
     die($e->getMessage());
 }
+
+print_r($response);

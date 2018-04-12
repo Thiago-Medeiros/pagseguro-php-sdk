@@ -48,7 +48,8 @@ $payment->setShipping()->setType()->instance($shippingType);
 /**
  * Lista de itens contidos na transação. O número de itens sob este elemento corresponde ao valor de itemCount.
  *
- * @var array $items \PagSeguro\Domains\Item
+ * @var \PagSeguro\Domains\Item $item
+ * @var array $items
  */
 $items = [$item];
 
@@ -178,6 +179,10 @@ $payment->acceptPaymentMethod()->name(\PagSeguro\Enum\PaymentMethod\Name::DEBITO
  */
 $payment->excludePaymentMethod()->group(\PagSeguro\Enum\PaymentMethod\Group::BOLETO);
 
+/*
+ * Após realizar uma chamada com sucesso, você deve direcionar o comprador para o fluxo de
+ * pagamento, usando a url de pagamento retornado.
+ */
 try {
     /** @var \PagSeguro\Domains\Requests\Payment $payment */
     $response = $payment->register(

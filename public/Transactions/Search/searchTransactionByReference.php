@@ -1,28 +1,53 @@
 <?php
 
-require_once "../../../vendor/autoload.php";
+require '../../bootstrap.php';
 
-\PagSeguro\Library::initialize();
-\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
+/**
+ * Formato: Y-m-dTH:i
+ *
+ * @var string $initialDate
+ */
+$initialDate = INITIAL_DATE;
+/**
+ * Formato: Y-m-dTH:i
+ *
+ * @var string $finalDate
+ */
+$finalDate = FINAL_DATE;
+
+/** @var integer $page */
+$page = PAGE;
+
+/** @var integer $maxPerPage */
+$maxPerPage = MAX_PER_PAGE;
 
 $options = [
-    'initial_date' => '2018-01-01T14:55',
-    'final_date' => '2018-01-24T09:55', //Optional
-    'page' => 1, //Optional
-    'max_per_page' => 20, //Optional
+    'initial_date' => $initialDate,
+    'final_date' => $finalDate,
+    'page' => $page,
+    'max_per_page' => $maxPerPage,
 ];
-
-$reference = "REF123";
 
 try {
     $response = \PagSeguro\Services\Transactions\Search\Reference::search(
-        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F'),
+        /** @var \PagSeguro\Domains\AccountCredentials | \PagSeguro\Domains\ApplicationCredentials $credential */
+        $credential,
+        /**
+         * Código de referência da transação. Informa o código que foi usado para fazer referência ao pagamento.
+         * Este código foi fornecido no momento do pagamento e é útil para vincular as transações do PagSeguro às vendas
+         * registradas no seu sistema.
+         *
+         * Presença: Opcional.
+         * Tipo: Texto.
+         * Formato: Livre, com o limite de 200 caracteres.
+         *
+         * @var string $reference
+         */
         $reference,
         $options
     );
-
-    echo "<pre>";
-    print_r($response);
 } catch (Exception $e) {
     die($e->getMessage());
 }
+
+print_r($response);

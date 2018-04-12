@@ -1,121 +1,157 @@
 <?php
 
-require_once "../../vendor/autoload.php";
+require '../bootstrap.php';
 
-\PagSeguro\Library::initialize();
-\PagSeguro\Library::cmsVersion()->setName("Nome")->setRelease("1.0.0");
-\PagSeguro\Library::moduleVersion()->setName("Nome")->setRelease("1.0.0");
-\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
-
-//Instantiate a new direct payment request, using Credit Card
 $creditCard = new \PagSeguro\Domains\Requests\DirectPayment\CreditCard();
 
 /**
- * @todo Change the receiver Email
+ * Modo do pagamento
+ *
+ * Presença: Obrigatória.
+ * Tipo: Texto.
+ * Formato: aceita a opção default.
+ *
+ * @var string $paymentMode
+ * @options=['default']
  */
-$creditCard->setReceiverEmail('vendedor@lojamodelo.com.br');
+$creditCard->setMode($paymentMode);
 
-// Set a reference code for this payment request. It is useful to identify this payment
-// in future notifications.
-$creditCard->setReference("LIBPHP000001");
+/**
+ * Especifica o e-mail que vai receber o pagamento
+ *
+ * Presença:Obrigatória.
+ * Tipo:Texto.
+ * Presença:Obrigatória.
+ * Formato:Um e-mail válido, com limite de 60 caracteres. O e-mail informado deve estar vinculado à conta PagSeguro que
+ * está realizando a chamada.
+ *
+ * @var string $receiverEmail
+ */
+$creditCard->setReceiverEmail($receiverEmail);
 
-// Set the currency
-$creditCard->setCurrency("BRL");
+/**
+ * Código de referência da transação. Informa o código que foi usado para fazer referência ao pagamento. Este código
+ * foi fornecido no momento do pagamento e é útil para vincular as transações do PagSeguro às vendas registradas no seu
+ * sistema.
+ *
+ * Presença: Opcional.
+ * Formato: Livre, com o limite de 200 caracteres.
+ * Tipo: Texto.
+ *
+ * @var string $reference
+ */
+$creditCard->setReference($reference);
 
-// Add an item for this payment request
-$creditCard->addItems()->withParameters(
-    '0001',
-    'Notebook prata',
-    2,
-    10.00
-);
+/**
+ * Moeda utilizada. Indica a moeda na qual o pagamento será feito. No momento, a única opção disponível é BRL (Real).
+ *
+ * Presença: Obrigatória.
+ * Tipo: Texto.
+ * Formato: Somente o valor BRL é aceito.
+ *
+ * @var string $currency
+ * @options=['BRL']
+ */
+$creditCard->setCurrency($currency);
 
-// Add an item for this payment request
-$creditCard->addItems()->withParameters(
-    '0002',
-    'Notebook preto',
-    2,
-    5.00
-);
+/**
+ * Lista de itens contidos na transação. O número de itens sob este elemento corresponde ao valor de itemCount.
+ *
+ * @var \PagSeguro\Domains\Item $item
+ * @var array $items
+ */
+$items = [$item];
 
-// Set your customer information.
-// If you using SANDBOX you must use an email @sandbox.pagseguro.com.br
-$creditCard->setSender()->setName('João Comprador');
-$creditCard->setSender()->setEmail('email@comprador.com.br');
+$creditCard->setItems($items);
 
-$creditCard->setSender()->setPhone()->withParameters(
-    11,
-    56273440
-);
+/**
+ * Nome completo do comprador. Informa o nome completo do comprador que realizou o pagamento.
+ *
+ * Presença: Opcional.
+ * Tipo: Texto.
+ * Formato:* No mínimo duas sequências de caracteres, com o limite total de 50 caracteres.
+ *
+ * @var string $senderName
+ */
+$creditCard->setSender()->setName($senderName);
 
-$creditCard->setSender()->setDocument()->withParameters(
-    'CPF',
-    'insira um numero de CPF valido'
-);
+/**
+ * E-mail do comprador. Informa o e-mail do comprador que realizou a transação.
+ *
+ * Presença: Obrigatória.
+ * Tipo: Texto.
+ * Formato: um e-mail válido (p.e., usuario\@site.com.br), com no máximo 60 caracteres.
+ *
+ * @var string $senderEmail
+ */
+$creditCard->setSender()->setEmail($senderEmail);
 
-$creditCard->setSender()->setHash('d94d002b6998ca9cd69092746518e50aded5a54aef64c4877ccea02573694986');
+/** @var \PagSeguro\Domains\Phone $phone */
+$creditCard->setSender()->setPhone()->instance($phone);
 
-$creditCard->setSender()->setIp('127.0.0.0');
+/** @var \PagSeguro\Domains\Document $document */
+$creditCard->setSender()->setDocument()->instance($document);
 
-// Set shipping information for this payment request
-$creditCard->setShipping()->setAddress()->withParameters(
-    'Av. Brig. Faria Lima',
-    '1384',
-    'Jardim Paulistano',
-    '01452002',
-    'São Paulo',
-    'SP',
-    'BRA',
-    'apto. 114'
-);
+/**
+ * Identificador do vendedor (fingerprint) gerado pelo JavaScript do PagSeguro.
+ *
+ * Presença: Obrigatória.
+ * Tipo: Texto.
+ * Formato: Obtido a partir de uma chamada javascript PagseguroDirectPayment.getSenderHash().
+ *
+ * @var string $senderHash
+ *
+ * @see https://devpagseguro.readme.io/docs/checkout-web-usando-a-sua-tela#obter-indicacao-do-comprador
+ */
+$creditCard->setSender()->setHash($senderHash);
 
-//Set billing information for credit card
-$creditCard->setBilling()->setAddress()->withParameters(
-    'Av. Brig. Faria Lima',
-    '1384',
-    'Jardim Paulistano',
-    '01452002',
-    'São Paulo',
-    'SP',
-    'BRA',
-    'apto. 114'
-);
 
-// Set credit card token
-$creditCard->setToken('2ed34e61b24d4ea8ae872c66a512525c');
+/** @var \PagSeguro\Domains\Address $address */
+$creditCard->setShipping()->setAddress()->instance($address);
 
-// Set the installment quantity and value (could be obtained using the Installments
-// service, that have an example here in \public\getInstallments.php)
-$creditCard->setInstallment()->withParameters(1, '30.00');
+/** @var \PagSeguro\Domains\Address $address */
+$creditCard->setBilling()->setAddress()->instance($address);
+
+/**
+ * Token do Cartão de Crédito. Token retornado no serviço de obtenção de token do cartão de crédito.
+ *
+ * Presença: Obrigatório para Cartão de Crédito.
+ * Tipo: Texto.
+ * Formato: Não tem limite de caracteres.
+ *
+ * @var string $token
+ */
+$creditCard->setToken($token);
+
+/**
+ * Quantidade de parcelas. Quantidade de parcelas escolhidas pelo cliente.
+ *
+ * Presença: Obrigatório para Cartão de Crédito.
+ * Tipo: Inteiro.
+ * Valores aceitos: [1, 18].
+ *
+ * @var integer $quantity
+ */
+/** @var float $value */
+$creditCard->setInstallment()->withParameters($quantity, $value);
 
 // Set the credit card holder information
 $creditCard->setHolder()->setBirthdate('01/10/1979');
 $creditCard->setHolder()->setName('João Comprador'); // Equals in Credit Card
 
-$creditCard->setHolder()->setPhone()->withParameters(
-    11,
-    56273440
-);
+/** @var \PagSeguro\Domains\Phone $phone */
+$creditCard->setHolder()->setPhone()->instance($phone);
 
-$creditCard->setHolder()->setDocument()->withParameters(
-    'CPF',
-    'insira um numero de CPF valido'
-);
-
-// Set the Payment Mode for this payment request
-$creditCard->setMode('DEFAULT');
-
-// Set a reference code for this payment request. It is useful to identify this payment
-// in future notifications.
+/** @var \PagSeguro\Domains\Document $document */
+$creditCard->setHolder()->setDocument()->instance($document);
 
 try {
-    //Get the crendentials and register the boleto payment
     $result = $creditCard->register(
-        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F')
+        /** @var \PagSeguro\Domains\AccountCredentials | \PagSeguro\Domains\ApplicationCredentials $credential */
+        $credential
     );
-    echo "<pre>";
-    print_r($result);
 } catch (Exception $e) {
-    echo "</br> <strong>";
     die($e->getMessage());
 }
+
+print_r($response);

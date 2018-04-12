@@ -1,26 +1,38 @@
 <?php
-require_once "../../vendor/autoload.php";
 
-\PagSeguro\Library::initialize();
-\PagSeguro\Library::cmsVersion()->setName("Nome")->setRelease("1.0.0");
-\PagSeguro\Library::moduleVersion()->setName("Nome")->setRelease("1.0.0");
-/**
- *  Para usa o ambiente de testes (sandbox) descomentar a linha abaixo
+require '../bootstrap.php';
+
+/*
+ * Para uma Ordem de Pagamento que não tenha sido cobrada com sucesso, pode-se solicitar a retentativa de cobrança
+ * através deste serviço. Isto irá gerar uma nova transação para esta Ordem de Pagamento.
+ *
+ * A geração da cobrança não é instantânea, a chamada ao serviço irá colocar a ordem de pagamento em uma fila de
+ * retentativas.
  */
-\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
 
 $plan = new \PagSeguro\Domains\Requests\DirectPreApproval\RetryPaymentOrder();
-$plan->setPreApprovalCode('código da assinatura');
-$plan->setPaymentOrderCode('código da ordem de pagamento');
+
+/**
+ * Código da assinatura
+ *
+ * @var string $preApprovalCode
+ */
+$plan->setPreApprovalCode($preApprovalCode);
+
+/**
+ * Representa um código de ordem de pagamento na assinatura em questão.
+ *
+ * @var string $paymentOrderCode
+ */
+$plan->setPaymentOrderCode($paymentOrderCode);
 
 try {
     $response = $plan->register(
-        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F')
+        /** @var \PagSeguro\Domains\AccountCredentials | \PagSeguro\Domains\ApplicationCredentials $credential */
+        $credential
     );
-
-    echo '<pre>';
-    print_r($response);
 } catch (Exception $e) {
     die($e->getMessage());
 }
 
+print_r($response);

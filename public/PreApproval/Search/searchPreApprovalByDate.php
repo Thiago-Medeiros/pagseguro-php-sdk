@@ -1,25 +1,47 @@
 <?php
 
-require_once "../../../vendor/autoload.php";
+require '../../bootstrap.php';
 
-\PagSeguro\Library::initialize();
-\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
+/*
+ * Obtém os dados das assinaturas dado um intervalo de datas.
+ */
+
+/**
+ * Formato: Y-m-dTH:i
+ *
+ * @var string $initialDate
+ */
+$initialDate = INITIAL_DATE;
+/**
+ * Formato: Y-m-dTH:i
+ *
+ * @var string $finalDate
+ */
+$finalDate = FINAL_DATE;
+
+/** @var integer $page */
+$page = PAGE;
+
+/** @var integer $maxPerPage */
+$maxPerPage = MAX_PER_PAGE;
 
 $options = [
-    'initial_date' => '2016-05-01T14:55',
-    'final_date' => '2016-05-10T09:55', //Optional
-    'page' => 1, //Optional
-    'max_per_page' => 20, //Optional
+    'initial_date' => $initialDate,
+    'final_date' => $finalDate,
+    'page' => $page,
+    'max_per_page' => $maxPerPage,
 ];
 
 try {
     $response = \PagSeguro\Services\PreApproval\Search\Date::search(
-        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F'),
+        /** @var \PagSeguro\Domains\AccountCredentials | \PagSeguro\Domains\ApplicationCredentials $credential */
+        $credential,
         $options
     );
 
     echo "<pre>";
-    print_r($response);
 } catch (Exception $e) {
     die($e->getMessage());
 }
+
+print_r($response);

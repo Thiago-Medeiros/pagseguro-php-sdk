@@ -1,33 +1,52 @@
 <?php
-require_once "../../vendor/autoload.php";
 
-\PagSeguro\Library::initialize();
-\PagSeguro\Library::cmsVersion()->setName("Nome")->setRelease("1.0.0");
-\PagSeguro\Library::moduleVersion()->setName("Nome")->setRelease("1.0.0");
-/**
- *  Para usa o ambiente de testes (sandbox) descomentar a linha abaixo
+require '../bootstrap.php';
+
+/*
+ * Esta consulta possibilita o acesso aos dados de todas as recorrências criadas dentro do intervalo de datas fornecido
+ * como parâmetro. Note que a consulta não retorna resultados para datas anteriores a 6 (seis) meses da data atual.
  */
-\PagSeguro\Configuration\Configure::setEnvironment('sandbox');
+
+/** Página na qual se quer observar os resultados
+ *
+ * @var integer $page
+ */
+$page = PAGE;
 
 /**
- * @param $page
- * @param $maxPageResults
- * @param $initialDate
- * @param $finalDate
- * @param $status
- * @param $preApprovalRequest
- * @param $senderEmail
+ * Número máximo de registros por página
+ *
+ * @var integer $maxPageResults
  */
-$queryPreApproval = new \PagSeguro\Domains\Requests\DirectPreApproval\Query(null, null, '2017-08-01', '2017-08-02');
+$maxPageResults = MAX_PAGE_RESULTS;
+/**
+ * Data inicial do intervalo. Formato: YYYY-MM-DDThh:mm:ss.sTZD, o formato oficial do W3C para datas.
+ *
+ * @var string $initialDate
+ */
+$initialDate = INITIAL_DATE;
+
+/**
+ * Data final do intervalo. Formato: YYYY-MM-DDThh:mm:ss.sTZD, o formato oficial do W3C para datas.
+ *
+ * @var string $finalDate
+ */
+$finalDate = FINAL_DATE;
+
+$queryPreApproval = new \PagSeguro\Domains\Requests\DirectPreApproval\Query(
+    $page,
+    $maxPageResults,
+    $initialDate,
+    $finalDate
+);
 
 try {
     $response = $queryPreApproval->register(
-        new \PagSeguro\Domains\AccountCredentials('thiago.pixelab@gmail.com', '9D72B35DFD8A4FDC89F6D69BD75D8F6F')
+        /** @var \PagSeguro\Domains\AccountCredentials | \PagSeguro\Domains\ApplicationCredentials $credential */
+        $credential
     );
-
-    echo '<pre>';
-    print_r($response);
 } catch (Exception $e) {
     die($e->getMessage());
 }
 
+print_r($response);
